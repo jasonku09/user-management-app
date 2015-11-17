@@ -1,0 +1,133 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+
+<dom-module id="edit-user-dialog">
+  <style>
+    :host {
+      display: block;
+    }
+    paper-dialog > :first-child {
+      margin-top: 0;
+    }
+    iron-icon{
+      width: 15px;
+      height:15px;
+    }
+    input{
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0;
+      border: none;
+      border-bottom: 1px solid grey;
+      padding: 5px;
+      margin-top: 0;
+    }
+    input:focus{
+      outline:none;
+    }
+    paper-item{
+      height:35px;
+      min-height:35px;
+    }
+    paper-button{
+      font-size:12px;
+    }
+    label{
+      color: grey;
+      font-size: 10px;
+    }
+    paper-toolbar{
+      padding:0;
+    }
+    #saveButton{
+      background-color:#3FACB5;
+      color:white;
+    }
+  </style>
+  <template>
+    <paper-dialog id="editDialog" modal class="vertical layout center-justified">
+      <paper-toolbar><div>[[title]]</div></paper-toolbar>
+      <label>Name<input label="name" is="iron-input" value="{{tempUser.name::input}}"></label>
+
+      <!-- Role List -->
+      <paper-listbox>
+        <template id="roleRepeat" is="dom-repeat" items="{{tempUser.roles}}" as="role">
+          <paper-item>
+            <span>[[role]]</span>
+            <div class="flex"></div>
+            <iron-icon on-tap="_onDeleteRoleTap" icon="cancel"></iron-icon>
+          </paper-item>
+        </template>
+      </paper-listbox>
+
+      <!-- Add Roles -->
+      <template is="dom-if" if="[[addRole]]">
+        <input id="roleInput" placeholder="Role" is="iron-input" value="{{newRole::input}}" on-keyup="_onKeyUp">
+      </template>
+      <paper-button id="addRoleButton">
+        <iron-icon icon="add"></iron-icon>
+        Add Role
+      </paper-button>
+
+      <!-- Buttons -->
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button id="saveButton" dialog-confirm >Save</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'edit-user-dialog',
+
+    listeners: {
+      'saveButton.tap': '_onSaveTap',
+      'addRoleButton.tap': '_onAddRoleTap',
+
+    },
+
+    properties: {
+      user: {
+        notify:true
+      }
+    },
+
+    open: function(){
+      this.tempUser = {
+        name: this.user ? this.user.name : "",
+        roles: this.user ? this.user.roles.slice() : []
+      }
+      this.$.editDialog.open();
+    },
+
+    _onSaveTap: function(){
+      this.user = this.user || {};
+      this.set('user.name', this.tempUser.name);
+      this.set('user.roles', this.tempUser.roles);
+      this.fire('confirm');
+    },
+
+    _onDeleteRoleTap: function(e){
+      this.splice('tempUser.roles', this.tempUser.roles.indexOf(this.$.roleRepeat.itemForElement(e.target)), 1);
+    },
+
+    _onAddRoleTap: function(){
+      this.addRole = true;
+    },
+    
+    _onKeyUp: function(e){
+      if(e.keyCode == 13 && this.newRole.length !== 0){
+        this.push('tempUser.roles', this.newRole);
+        this.newRole = "";
+        this.addRole = false;
+      }
+    }
+
+  });
+</script>

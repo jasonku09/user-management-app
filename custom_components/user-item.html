@@ -1,0 +1,68 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="user-item">
+  <style>
+    :host {
+      display: block;
+      border-bottom:1px solid lightgrey;
+    }
+    paper-icon-item{
+      height:50px;
+      font-size:14px;
+    }
+    div[secondary]{
+      font-size:11px;
+    }
+    iron-icon[item-icon]{
+      width: 30px;
+      height:30px;
+    }
+    iron-icon{
+      color:grey;
+    }
+    iron-icon /deep/ img{
+      border: 1px solid grey;
+      border-radius:50%;
+    }
+  </style>
+  <template>
+    <paper-icon-item>
+      <iron-icon src="./../images/default_profile.png" item-icon></iron-icon>
+      <paper-item-body two-line>
+        <div>[[user.name]]</div>
+        <div secondary>[[roleString]]</div>
+      </paper-item-body>
+      <div class="flex"></div>
+      <iron-icon id="editButton" icon="create"></iron-icon>
+      <iron-icon id="deleteButton" icon="delete"></iron-icon>
+    </paper-icon-item>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'user-item',
+
+    observers: [
+      'userRolesChanged(user.roles)'
+    ],
+
+    listeners: {
+      'deleteButton.tap': '_onDeleteTap',
+      'editButton.tap': '_onEditTap'
+    },
+    userRolesChanged: function(roles){
+      this.roleString = this.user.roles.join(", ");
+    },
+    _onDeleteTap: function(){
+      this.fire('delete');
+    },
+    _onEditTap: function(){
+      this.fire('edit');
+    }
+  });
+</script>

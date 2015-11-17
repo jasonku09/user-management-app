@@ -1,0 +1,70 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="user-item.html">
+<link rel="import" href="edit-user-dialog.html">
+
+<dom-module id="user-list">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+
+    <!-- Edit User Dialog -->
+    <edit-user-dialog id="editDialog"
+                      user="{{selectedUser}}"
+                      title="Edit User"></edit-user-dialog>
+
+    <!-- Delete User Confirmation Dialog -->
+    <paper-dialog id="deleteConfirmationDialog" modal>
+      <h5>Are you sure you want to delete user '<span>[[selectedUser.name]]</span>'?</h5>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button id="deleteConfirm" dialog-confirm>Yes</paper-button>
+      </div>
+    </paper-dialog>
+
+    <!-- User List -->
+    <array-selector id="selector" items="{{users}}" selected="{{selectedUser}}"></array-selector>
+    <template id="userRepeat" is="dom-repeat" items="{{users}}" as="user">
+      <user-item user="[[user]]"
+                         on-delete="_onUserDelete"
+                         on-edit="_onUserEdit"></user-item>
+    </template>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'user-list',
+
+    listeners: {
+      'deleteConfirm.tap': '_onDeleteConfirm'
+    },
+
+    properties:{
+      users:{
+        notify: true
+      }
+    },
+
+    _onUserDelete: function(e){
+      this.$.selector.select(this.$.userRepeat.itemForElement(e.target));
+      this.$.deleteConfirmationDialog.open();
+    },
+
+    _onDeleteConfirm: function(){
+      this.splice('users', this.users.indexOf(this.selectedUser), 1);
+    },
+
+    _onUserEdit: function(e){
+      this.$.selector.select(this.$.userRepeat.itemForElement(e.target));
+      this.$.editDialog.open();
+    },
+
+    _onSaveTap: function(){
+      this.set('selectedUser.name', this.selectedUser.name);
+    }
+  });
+</script>
